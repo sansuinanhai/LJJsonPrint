@@ -1,0 +1,13 @@
+use_frameworks!
+
+platform :ios, '10.0'
+
+target 'LJJsonPrint_Example' do
+  pod 'LJJsonPrint', :path => '../'
+
+  target 'LJJsonPrint_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end

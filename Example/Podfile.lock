@@ -1,0 +1,16 @@
+PODS:
+  - LJJsonPrint (0.1.0)
+
+DEPENDENCIES:
+  - LJJsonPrint (from `../`)
+
+EXTERNAL SOURCES:
+  LJJsonPrint:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  LJJsonPrint: 96eb8d409b8dc0f05cbef772328b02f4d682fe47
+
+PODFILE CHECKSUM: 760006305e07f1c345553ed0b452f4656a5c2299
+
+COCOAPODS: 1.15.2
