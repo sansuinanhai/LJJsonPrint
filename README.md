@@ -1,9 +1,9 @@
 # LJJsonPrint
 
-[![CI Status](https://img.shields.io/travis/Josh/LJJsonPrint.svg?style=flat)](https://travis-ci.org/Josh/LJJsonPrint)
 [![Version](https://img.shields.io/cocoapods/v/LJJsonPrint.svg?style=flat)](https://cocoapods.org/pods/LJJsonPrint)
-[![License](https://img.shields.io/cocoapods/l/LJJsonPrint.svg?style=flat)](https://cocoapods.org/pods/LJJsonPrint)
+[![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://raw.githubusercontent.com/LJJsonPrint/main/LICENSE)&nbsp;
 [![Platform](https://img.shields.io/cocoapods/p/LJJsonPrint.svg?style=flat)](https://cocoapods.org/pods/LJJsonPrint)
+[![Support](https://img.shields.io/badge/support-iOS%2010%2B%20-blue.svg?style=flat)](https://www.apple.com/nl/ios/)&nbsp;
 
 
 
@@ -14,7 +14,7 @@
 - 可以展示数组、字典
 - 可以设置默认展示的层级数
 - 支持展开和收起
-- 内容展示不全时，支持横向、纵向滚动
+- 内容不够展示时，支持横向、纵向滚动
 - 可以长按触发菜单弹窗(支持复制)
 
 ## 安装
