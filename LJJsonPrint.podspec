@@ -9,7 +9,7 @@
 Pod::Spec.new do |s|
   s.name             = 'LJJsonPrint'
   s.version          = '0.1.0'
-  s.summary          = 'A short description of LJJsonPrint.'
+  s.summary          = '展示json结构的数据'
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -18,17 +18,18 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-TODO: Add long description of the pod here.
+  日常开发调试,需要查看服务器返回的数据，在控制台打印结构不是很清晰,不直观，当前库可以展示json结构的数据,方便调试
                        DESC
 
-  s.homepage         = 'https://github.com/Josh/LJJsonPrint'
+  s.homepage         = 'https://github.com/sansuinanhai/LJJsonPrint'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { 'Josh' => 'Josh@custom.com' }
-  s.source           = { :git => 'https://github.com/Josh/LJJsonPrint.git', :tag => s.version.to_s }
+  s.author           = { 'sansuinanhai' => 'Josh@custom.com' }
+  s.source           = { :git => 'https://github.com/sansuinanhai/LJJsonPrint.git', :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
   s.ios.deployment_target = '10.0'
+  s.swift_version = '5.3'
 
   s.source_files = 'LJJsonPrint/Classes/**/*'
   
