@@ -19,8 +19,69 @@ public class ParserManager {
     //展示的层数
     private var showLevel:Int = 3
     
+    var activeElements:[MatchElement] = Array()
+
+    var attConfig:ParserAttConfig!
+    ///正则配置
+    var regexConfig:ParserRegexConfig?
     
-    //解析
+    init(){
+        attConfig = ParserAttConfig(font: UIFont.systemFont(ofSize: 14), color: .black, lineSpacing: 0)
+    }
+    
+    //MARK: 解析并创建富文本
+    public func parseAndFormAtt(value:Any,showLevel:Int) -> NSAttributedString{
+        
+        let str = parser(value: value, showLevel: showLevel)
+        let par = NSMutableParagraphStyle()
+        par.lineSpacing = attConfig.lineSpacing
+        
+        let attStr = NSMutableAttributedString(string: str,attributes: [NSAttributedString.Key.font:attConfig.font,NSAttributedString.Key.foregroundColor:attConfig.color,NSAttributedString.Key.paragraphStyle:par])
+        
+        if let config = regexConfig {
+            activeElements.removeAll()
+            createActiveElements(str: str, pattern: config.pattern)
+            for item in activeElements {
+                attStr.setAttributes([NSAttributedString.Key.font:config.attConfig.font,NSAttributedString.Key.foregroundColor:config.attConfig.color], range: item.range)
+            }
+        }
+        
+        
+        return attStr
+    }
+    
+    private func createActiveElements(str:String,pattern:String) {
+        
+        let textLength = str.utf16.count
+        let textRange = NSRange(location: 0, length: textLength)
+        
+        let hashtagElements = createElements(from: str,for:pattern,range: textRange)
+        activeElements.append(contentsOf: hashtagElements)
+    }
+    
+    private func createElements(from text: String,
+                                            for pattern: String,
+                                                range: NSRange,
+                                                minLength: Int = 1) -> [MatchElement] {
+
+        guard let createdRegex = try? NSRegularExpression(pattern:pattern, options: [.caseInsensitive]) else { return [] }
+        
+        
+        let matches = createdRegex.matches(in: text, options: [], range: range)
+        let nsstring = text as NSString
+        var elements: [MatchElement] = []
+        
+        for match in matches where match.range.length >= minLength {
+            let word = nsstring.substring(with: match.range)
+                .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+            let element = MatchElement(text: word, range: match.range)
+            elements.append(element)
+        }
+        return elements
+    }
+    
+    
+    //将json数据格式化
    public func parser(value:Any,showLevel:Int) -> String{
         oriValue = value
         self.showLevel = showLevel
@@ -76,11 +137,15 @@ public class ParserManager {
                 
             }
             
-            let spaceStr = getSpaceStr(count: tempNode.spaceCount)
-            printStr += spaceStr
+//            let spaceStr = getSpaceStr(count: tempNode.spaceCount)
+//            printStr += spaceStr
             var isAddSeparate:Bool = false
             
             if let tempSource = tempNode.sourceData as? [AnyHashable:Any],tempSource.keys.count > tempNode.curIndex {//节点是字典
+                let spaceStr = getSpaceStr(count: tempNode.spaceCount)
+                printStr += spaceStr
+
+                
                 var keysArr = Array(tempSource.keys)
                 keysArr = keysArr.sorted(by: {$0.hashValue < $1.hashValue})
                 let key = keysArr[tempNode.curIndex]
@@ -113,7 +178,9 @@ public class ParserManager {
                 }
                 
             }else if let tempSource = tempNode.sourceData as? [Any],tempSource.count > tempNode.curIndex {//节点是数组
-                
+                let spaceStr = getSpaceStr(count: tempNode.spaceCount)
+                printStr += spaceStr
+
                 let tempValue = tempSource[tempNode.curIndex]
                 if let tempDic = tempValue as? [AnyHashable:Any] {//字典
                     let node = createNode(spaceCount: tempNode.spaceCount + levelCount, level: traverseArr.count, dic: tempDic)
@@ -136,7 +203,8 @@ public class ParserManager {
             
                 
                 if tempNode.maxIndex < 0 {
-                    printStr += "null"
+                    let spaceStr = getSpaceStr(count: tempNode.spaceCount)
+                    printStr += spaceStr + "null"
                 }
                 
                 if nodeLevel > 0 {
@@ -177,12 +245,12 @@ public class ParserManager {
     }
     
     //MARK: 再次解析
-    func reParse() -> String{
-        guard let value = oriValue else { return "" }
+    func reParse() -> NSAttributedString{
+        guard let value = oriValue else { return NSAttributedString() }
         locationNodeDic.removeAll()
         indexDic.removeAll()
         nodeDic.values.forEach({$0.resetIndex()})
-       return  parser(value: value, showLevel: showLevel)
+       return  parseAndFormAtt(value: value, showLevel: showLevel)
     }
     
     //MARK: 获取节点
@@ -227,6 +295,8 @@ public class ParserManager {
         var spaceStr:String = ""
         for _ in 0..<count {
             spaceStr += "  "
+//            spaceStr += "*"
+
         }
         return spaceStr
     }
@@ -236,4 +306,22 @@ public class ParserManager {
     
     
 
+}
+
+extension ParserManager:ParseTextDelegate
+{
+    func match(textIndex: Int) -> MatchElement? {
+        
+        for element in activeElements {
+            if textIndex >= element.range.location && textIndex <= element.range.location + element.range.length {
+                return element
+            }
+        }
+
+        return nil
+        
+    }
+    
+    
+    
 }

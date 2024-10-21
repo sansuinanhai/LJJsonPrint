@@ -10,18 +10,18 @@ import UIKit
 
 public class PrintView: UIScrollView {
     public var font: UIFont {
-        get  {
-            return textView.font
+        get {
+            manager.attConfig.font
         }
-        
         set{
-            textView.font = newValue
+            manager.attConfig.font = newValue
+            manager.regexConfig?.attConfig.font = newValue
         }
     }
     
     public var textColor: UIColor! {
         didSet {
-            textView.textColor = textColor
+            manager.attConfig.color = textColor
         }
     }
     
@@ -33,15 +33,8 @@ public class PrintView: UIScrollView {
         }
     }
     
-    public var hightlightFont: UIFont? {
-        didSet { textView.hightlightFont = hightlightFont }
-    }
-
-    public var minimumLineHeight: CGFloat = 0 {
-        didSet { textView.minimumLineHeight = minimumLineHeight }
-    }
     public var lineSpacing: CGFloat = 0 {
-        didSet { textView.lineSpacing = lineSpacing }
+        didSet { manager.attConfig.lineSpacing = lineSpacing }
     }
     
     private let  manager:ParserManager = ParserManager()
@@ -49,6 +42,7 @@ public class PrintView: UIScrollView {
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
+        manager.regexConfig = ParserRegexConfig(pattern: "(➖)|(➕)", attConfig: ParserAttConfig(font: font, color: manager.attConfig.color, lineSpacing: 0))
         setUpView()
     }
     
@@ -63,23 +57,19 @@ public class PrintView: UIScrollView {
 //        textView.isScrollEnabled = false
         textView.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right:0)
         addSubview(textView)
-        let priType:ParserType = .custom(pattern: "(➖)|(➕)")
-        
-        textView.enabledTypes = [priType]
-
-        textView.handleCustomTap(for:priType) {[weak self] str,range in
-            debugPrint("匹配到了内容",str)
-            self?.handlerCustom(range: range)
+        textView.parseDelegate = manager
+        textView.customHandler = {
+            [weak self] element  in
+            self?.handlerCustom(range: element.range)
         }
-
     }
     
     private func handlerCustom(range:NSRange){
         
         if let node = manager.getNode(range: range) {
             node.isOpen = !node.isOpen
-            let str = manager.reParse()
-            show(text: str)
+            let attStr = manager.reParse()
+            show(attStr: attStr)
         }
     }
     
@@ -94,14 +84,15 @@ public class PrintView: UIScrollView {
     @discardableResult
     public func show(value:Any,showLevel:Int) -> (attStr:NSAttributedString?,size:CGSize){
         
-        let str = manager.parser(value: value, showLevel: showLevel)
-        show(text: str)
+        let attStr = manager.parseAndFormAtt(value: value, showLevel: showLevel)
+    
+        show(attStr: attStr)
         return (textView.attributedText,contentSize)
     }
     
-    private func show(text:String){
+    private func show(attStr:NSAttributedString){
         
-        textView.text = text
+        textView.attributedText = attStr
         let strSize2 = textView.attributedText?.boundingRect(with: CGSize(width: CGFloat(MAXFLOAT), height:CGFloat(MAXFLOAT)), options: [.usesLineFragmentOrigin,.usesFontLeading], context: nil).size ?? .zero
         
 //        textView.text = text
