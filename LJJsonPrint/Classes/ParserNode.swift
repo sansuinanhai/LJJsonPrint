@@ -14,13 +14,15 @@ import UIKit
 
 class ParserNode
 {
+    ///当前遍历的索引
     var curIndex:Int = 0
+    ///当前最大的索引
     var maxIndex:Int = 0
     var sourceData:Any?
     ///当前所在层
     var level:Int = 0
-    ///当前所在层的所以(比如在第二层的 第五个，此处的值是4)
-    var levelIndex:Int = 0
+    ///标识(用于当做缓存的key)
+    var identifier:String = ""
     ///是否展开
     var isOpen:Bool = true
     ///起点所在的位置
@@ -32,12 +34,12 @@ class ParserNode
     var suffixSignStr:String = "}"
     var spaceCount:Int
     
-    init( maxIndex: Int,spaceCount:Int,level:Int,levelIndex:Int, sourceData: Any? = nil) {
+    init( maxIndex: Int,spaceCount:Int,level:Int,identifier:String, sourceData: Any? = nil) {
         self.maxIndex = maxIndex
         self.sourceData = sourceData
         self.spaceCount = spaceCount
         self.level = level
-        self.levelIndex = levelIndex
+        self.identifier = identifier
         
         if sourceData is [Any] {
             prefixSignStr = "["

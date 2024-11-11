@@ -12,8 +12,6 @@ public class ParserManager {
     //保存生成的打印node
     private var nodeDic:[String:ParserNode] = [:]
     private var locationNodeDic:[Int:ParserNode] = [:]
-    //记录index
-    private var indexDic:[Int:Int] = [:]
     //原始数据
     private var oriValue:Any?
     //展示的层数
@@ -90,17 +88,18 @@ public class ParserManager {
         var traverseArr:[ParserNode] = Array()
         oriValue = value
 
+       //将初始节点压栈
         if let dic = value as? [AnyHashable:Any] {//字典
-            traverseArr.append(getNode(maxIndex: dic.keys.count - 1, spaceCount: 2, level: 0, levelIndex: 0, isOpen: showLevel > 0, data: dic))
+            traverseArr.append(getNode(maxIndex: dic.keys.count - 1, spaceCount: 2, level: 0, identifier: "0", isOpen: showLevel > 0, data: dic))
         }else if let dataArr = value as? [Any] {//数组
-            traverseArr.append(getNode(maxIndex: dataArr.count - 1, spaceCount: 2, level: 0, levelIndex: 0, isOpen: showLevel > 0, data: dataArr))
+            traverseArr.append(getNode(maxIndex: dataArr.count - 1, spaceCount: 2, level: 0, identifier: "0", isOpen: showLevel > 0, data: dataArr))
         }
         
         let levelCount:Int = 4
         
         while traverseArr.count > 0 {
-            let tempNode = traverseArr.last!
-            ///节点等级
+            let tempNode = traverseArr.last! //拿到最后的节点
+            ///节点层级(0是第一级）
             let nodeLevel = traverseArr.count - 1
             let prefixSignStr:String = tempNode.prefixSignStr
             let suffixSignStr:String = tempNode.suffixSignStr
@@ -159,11 +158,11 @@ public class ParserManager {
                 printStr += keyCon
                 
                 if let tempDic = tempValue as? [AnyHashable:Any] {//字典
-                    let node = createNode(spaceCount: tempNode.spaceCount + keyCon.count + levelCount, level: traverseArr.count, dic: tempDic)
+                    let node = createNode(spaceCount: tempNode.spaceCount + keyCon.count + levelCount, level: traverseArr.count,identifier: "\(tempNode.identifier)_\(tempNode.curIndex)",dic: tempDic)
                     traverseArr.append(node)
                     
                 }else if let tempArr = tempValue as? [Any] {//数组
-                    let node = createNode(spaceCount: tempNode.spaceCount + keyCon.count + levelCount, level: traverseArr.count, arr: tempArr)
+                    let node = createNode(spaceCount: tempNode.spaceCount + keyCon.count + levelCount, level: traverseArr.count,identifier:"\(tempNode.identifier)_\(tempNode.curIndex)", arr: tempArr)
                     traverseArr.append(node)
                 }else{
                     if tempValue is String {
@@ -183,10 +182,10 @@ public class ParserManager {
 
                 let tempValue = tempSource[tempNode.curIndex]
                 if let tempDic = tempValue as? [AnyHashable:Any] {//字典
-                    let node = createNode(spaceCount: tempNode.spaceCount + levelCount, level: traverseArr.count, dic: tempDic)
+                    let node = createNode(spaceCount: tempNode.spaceCount + levelCount, level: traverseArr.count,identifier:"\(tempNode.identifier)_\(tempNode.curIndex)", dic: tempDic)
                     traverseArr.append(node)
                 }else if let tempArr = tempValue as? [Any] {//数组
-                    let node = createNode(spaceCount: tempNode.spaceCount + levelCount, level: traverseArr.count, arr: tempArr)
+                    let node = createNode(spaceCount: tempNode.spaceCount + levelCount, level: traverseArr.count,identifier:"\(tempNode.identifier)_\(tempNode.curIndex)" ,arr: tempArr)
                     traverseArr.append(node)
                 }else{
                     if tempValue is String {
@@ -230,17 +229,13 @@ public class ParserManager {
     }
     
     //MARK: 生成node
-    func createNode(spaceCount:Int,level:Int,dic:[AnyHashable:Any])->ParserNode{
-        let nodeIndex = getNodeIndex(level: level) + 1
-        indexDic[level] = nodeIndex
-        let node = getNode(maxIndex: dic.keys.count - 1, spaceCount:spaceCount, level:level, levelIndex: nodeIndex, isOpen: showLevel > level, data: dic)
+    func createNode(spaceCount:Int,level:Int,identifier:String,dic:[AnyHashable:Any])->ParserNode{
+        let node = getNode(maxIndex: dic.keys.count - 1, spaceCount:spaceCount, level:level, identifier: identifier, isOpen: showLevel > level, data: dic)
         return node
     }
     
-    func createNode(spaceCount:Int,level:Int,arr:[Any])->ParserNode{
-        let nodeIndex = getNodeIndex(level: level) + 1
-        indexDic[level] = nodeIndex
-        let node = getNode(maxIndex: arr.count - 1, spaceCount: spaceCount, level: level, levelIndex: nodeIndex, isOpen: showLevel > level, data: arr)
+    func createNode(spaceCount:Int,level:Int,identifier:String,arr:[Any])->ParserNode{
+        let node = getNode(maxIndex: arr.count - 1, spaceCount: spaceCount, level: level, identifier: identifier, isOpen: showLevel > level, data: arr)
         return node
     }
     
@@ -248,7 +243,6 @@ public class ParserManager {
     func reParse() -> NSAttributedString{
         guard let value = oriValue else { return NSAttributedString() }
         locationNodeDic.removeAll()
-        indexDic.removeAll()
         nodeDic.values.forEach({$0.resetIndex()})
        return  parseAndFormAtt(value: value, showLevel: showLevel)
     }
@@ -266,29 +260,17 @@ public class ParserManager {
     
     
     //获取节点
-    private func getNode(maxIndex:Int,spaceCount:Int,level:Int,levelIndex:Int,isOpen:Bool,data:Any?) -> ParserNode {
-        let key:String  = "\(level)_\(levelIndex)"
-        var node:ParserNode? = nodeDic[key]
+    private func getNode(maxIndex:Int,spaceCount:Int,level:Int,identifier:String,isOpen:Bool,data:Any?) -> ParserNode {
+        var node:ParserNode? = nodeDic[identifier]
         if node == nil {
-            node = ParserNode(maxIndex:maxIndex,spaceCount:spaceCount,level: level,levelIndex: levelIndex,sourceData: data)
+            node = ParserNode(maxIndex:maxIndex,spaceCount:spaceCount,level: level,identifier: identifier,sourceData: data)
             node?.isOpen = isOpen
-            nodeDic[key] = node
+            nodeDic[identifier] = node
         }
+
         return node!
     }
-    
-    
-    
-    //MARK: 获取当前层的索引
-    private func getNodeIndex(level:Int) -> Int {
-        var index:Int = -1
-        if let tempIndex = indexDic[level] {
-            index = tempIndex
-        }
-        return index
-    }
-    
-    
+        
     
     //MARK: 获取空格字符串
     private func getSpaceStr(count:Int) ->String {
