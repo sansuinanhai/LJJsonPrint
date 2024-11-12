@@ -18,6 +18,7 @@ class ParserNode
     var curIndex:Int = 0
     ///当前最大的索引
     var maxIndex:Int = 0
+    ///原来的数据
     var sourceData:Any?
     ///当前所在层
     var level:Int = 0

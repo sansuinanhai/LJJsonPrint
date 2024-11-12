@@ -8,6 +8,6 @@ target 'LJJsonPrint_Example' do
   target 'LJJsonPrint_Tests' do
     inherit! :search_paths
 
-    
+
   end
 end
