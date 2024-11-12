@@ -31,7 +31,7 @@
 
 [Swift Package Manager](https://swift.org/package-manager/) 是一个用于自动分发Swift代码的工具，并集成到`xcode`中 。
 
-在项目中使用非常简单,File -> Add Packages,用地址`https://github.com/sansuinanhai/LJJsonPrint.git`"进行搜索，找到LJJsonPrint,点击下一步安装即可
+在项目中使用非常简单,File -> Add Packages,搜索地址`https://github.com/sansuinanhai/LJJsonPrint.git`，找到LJJsonPrint,点击下一步安装即可
 
 
 如果已经创建了`Package.swift`,将LJJsonPrint作为依赖项添加到`Package.swift`的`dependencies`中。
