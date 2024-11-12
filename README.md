@@ -65,7 +65,8 @@ pod 'LJJsonPrint'
 ## 用法
 
 ```swift
-				let printView = PrintView(frame: CGRect(x: 0, y: 150, width: 300, height: 300))
+				
+        let printView = PrintView(frame: CGRect(x: 0, y: 150, width: 300, height: 300))
         printView.backgroundColor = .red
         printView.textColor = .white
         printView.lineSpacing = 3
